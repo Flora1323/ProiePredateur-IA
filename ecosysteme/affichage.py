@@ -1,5 +1,5 @@
 import pygame
-from environment import creer_terrain, ARIDE, PRAIRIE, FORET
+from environment import creer_terrain_lisse, ARIDE, PRAIRIE, FORET
 
 COULEURS = {
     ARIDE: (210, 180, 120),   # beige
@@ -11,7 +11,7 @@ TAILLE_CASE = 12
 LARGEUR = 60
 HAUTEUR = 40
 
-terrain = creer_terrain(LARGEUR, HAUTEUR)
+terrain = creer_terrain_lisse(LARGEUR, HAUTEUR)
 
 pygame.init()
 fenetre = pygame.display.set_mode((LARGEUR * TAILLE_CASE, HAUTEUR * TAILLE_CASE))
