@@ -4,6 +4,9 @@ ARIDE = 0
 PRAIRIE = 1
 FORET = 2
 
+NOURRITURE_MAX = np.array([20, 60, 100])   # aride, prairie, forêt
+VITESSE_REPOUSSE = np.array([0.5, 2, 4])
+
 
 def creer_terrain(largeur, hauteur):
     terrain = np.random.randint(0, 3, size=(hauteur, largeur))
@@ -31,11 +34,23 @@ def creer_terrain_lisse(largeur, hauteur, passes=5):
     return terrain
 
 
-#if __name__ == "__main__":
- #   print(creer_terrain_lisse(10, 5))
-    
+def creer_nourriture(terrain):
+    maximums = NOURRITURE_MAX[terrain]
+    return maximums
+
+
+def faire_repousser(nourriture, terrain, facteur_meteo=1.0):
+    maximums = NOURRITURE_MAX[terrain]
+    vitesse = VITESSE_REPOUSSE[terrain] * facteur_meteo
+    nourriture = np.minimum(nourriture + vitesse, maximums)
+    return nourriture
+
+
 if __name__ == "__main__":
-    terrain = creer_terrain_lisse(60, 40)
-    print("aride  :", np.sum(terrain == ARIDE))
-    print("prairie:", np.sum(terrain == PRAIRIE))
-    print("forêt  :", np.sum(terrain == FORET))
+    terrain = creer_terrain_lisse(10, 5)
+    nourriture = creer_nourriture(terrain)
+    nourriture[:, :] = 0   # on vide toute la carte
+    for tour in range(10):
+        nourriture = faire_repousser(nourriture, terrain)
+    print(terrain)
+    print(nourriture)
