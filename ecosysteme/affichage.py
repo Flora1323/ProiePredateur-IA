@@ -39,7 +39,7 @@ terrain = creer_terrain_lisse(LARGEUR, HAUTEUR)
 nourriture = creer_nourriture(terrain)
 
 lapins = []
-for _ in range(50):
+for _ in range(50): #changer le nombre de lapins
     lapins.append(Lapin(random.randint(0, LARGEUR - 1), random.randint(0, HAUTEUR - 1)))
 
 en_cours = True
@@ -59,6 +59,11 @@ while en_cours:
 
     for lapin in lapins:
         lapin.deplacer_au_hasard(LARGEUR, HAUTEUR)
+        lapin.manger(nourriture)
+
+    lapins = [lapin for lapin in lapins if lapin.est_vivant()]
+    
+    print(len(lapins))
 
     fenetre.fill((0, 0, 0))
     for y in range(HAUTEUR):
@@ -71,9 +76,11 @@ while en_cours:
     for lapin in lapins:
         pixel_x = lapin.x * TAILLE_CASE + TAILLE_CASE // 2
         pixel_y = lapin.y * TAILLE_CASE + TAILLE_CASE // 2
-        pygame.draw.circle(fenetre, (255, 255, 255), (pixel_x, pixel_y), 4)
+        ratio = min(lapin.energie / 100, 1)
+        couleur_lapin = melanger((220, 0, 0), (255, 255, 255), ratio) # change la couleur du lapin en fonction de son énergie
+        pygame.draw.circle(fenetre, couleur_lapin, (pixel_x, pixel_y), 4)
 
     pygame.display.flip()
-    horloge.tick(10)
+    horloge.tick(30)
 
 pygame.quit()

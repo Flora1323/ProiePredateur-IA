@@ -12,7 +12,15 @@ class Lapin:
         self.y = self.y + random.choice([-1, 0, 1])
         self.x = max(0, min(self.x, largeur - 1))
         self.y = max(0, min(self.y, hauteur - 1))
+        self.energie -= 2
+    
+    def manger(self, nourriture):
+        quantite = min(10, nourriture[self.y, self.x])   # il mange 10 maximum, ou ce qu'il reste
+        nourriture[self.y, self.x] -= quantite           # la case perd ce qu'il a mangé
+        self.energie += quantite                         # le lapin le gagne      
 
+    def est_vivant(self):
+        return self.energie > 0
 
 if __name__ == "__main__":
     lapin = Lapin(30, 20)
