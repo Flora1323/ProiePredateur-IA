@@ -1,8 +1,10 @@
+import random
 import pygame
 from environment import (
     creer_terrain_lisse, ARIDE, PRAIRIE, FORET,
     creer_nourriture, faire_repousser, NOURRITURE_MAX,
 )
+from agents import Lapin
 
 COULEURS = {
     ARIDE: (210, 180, 120),
@@ -36,6 +38,10 @@ fenetre = pygame.display.set_mode((LARGEUR * TAILLE_CASE, HAUTEUR * TAILLE_CASE)
 terrain = creer_terrain_lisse(LARGEUR, HAUTEUR)
 nourriture = creer_nourriture(terrain)
 
+lapins = []
+for _ in range(50):
+    lapins.append(Lapin(random.randint(0, LARGEUR - 1), random.randint(0, HAUTEUR - 1)))
+
 en_cours = True
 while en_cours:
     for evenement in pygame.event.get():
@@ -51,6 +57,9 @@ while en_cours:
         if 0 <= case_x < LARGEUR and 0 <= case_y < HAUTEUR:
             nourriture[case_y, case_x] = 0
 
+    for lapin in lapins:
+        lapin.deplacer_au_hasard(LARGEUR, HAUTEUR)
+
     fenetre.fill((0, 0, 0))
     for y in range(HAUTEUR):
         for x in range(LARGEUR):
@@ -59,7 +68,12 @@ while en_cours:
             couleur = melanger(COULEURS_VIDE[type_terrain], COULEURS[type_terrain], ratio)
             pygame.draw.rect(fenetre, couleur, (x * TAILLE_CASE, y * TAILLE_CASE, TAILLE_CASE, TAILLE_CASE))
 
+    for lapin in lapins:
+        pixel_x = lapin.x * TAILLE_CASE + TAILLE_CASE // 2
+        pixel_y = lapin.y * TAILLE_CASE + TAILLE_CASE // 2
+        pygame.draw.circle(fenetre, (255, 255, 255), (pixel_x, pixel_y), 4)
+
     pygame.display.flip()
-    horloge.tick(30)
+    horloge.tick(10)
 
 pygame.quit()
