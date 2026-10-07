@@ -5,7 +5,7 @@ PRAIRIE = 1
 FORET = 2
 
 NOURRITURE_MAX = np.array([20, 60, 100])   # aride, prairie, forêt
-VITESSE_REPOUSSE = np.array([0.5, 1, 2])
+VITESSE_REPOUSSE = np.array([0.1, 0.3, 0.6])  # vitesse de repousse initiale : ([0.5, 1, 2]), je change pour les tests
 
 
 def creer_terrain(largeur, hauteur):

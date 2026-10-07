@@ -4,7 +4,9 @@ from environment import (
     creer_terrain_lisse, ARIDE, PRAIRIE, FORET,
     creer_nourriture, faire_repousser, NOURRITURE_MAX,
 )
-from agents import Lapin
+from agents import (
+    Lapin, Renard
+)
 
 COULEURS = {
     ARIDE: (210, 180, 120),
@@ -41,6 +43,10 @@ nourriture = creer_nourriture(terrain)
 lapins = []
 for _ in range(50): #changer le nombre de lapins
     lapins.append(Lapin(random.randint(0, LARGEUR - 1), random.randint(0, HAUTEUR - 1)))
+    
+renards = []
+for _ in range(10):
+    renards.append(Renard(random.randint(0, LARGEUR - 1), random.randint(0, HAUTEUR - 1)))
 
 en_cours = True
 while en_cours:
@@ -61,9 +67,13 @@ while en_cours:
         lapin.deplacer_au_hasard(LARGEUR, HAUTEUR)
         lapin.manger(nourriture)
 
+    for renard in renards:
+        renard.agir(lapins, LARGEUR, HAUTEUR)
+        renard.manger(lapins)
+
     lapins = [lapin for lapin in lapins if lapin.est_vivant()]
-    
-    print(len(lapins))
+    renards = [renard for renard in renards if renard.est_vivant()]
+    print(len(lapins), len(renards))
 
     fenetre.fill((0, 0, 0))
     for y in range(HAUTEUR):
@@ -77,8 +87,15 @@ while en_cours:
         pixel_x = lapin.x * TAILLE_CASE + TAILLE_CASE // 2
         pixel_y = lapin.y * TAILLE_CASE + TAILLE_CASE // 2
         ratio = min(lapin.energie / 100, 1)
-        couleur_lapin = melanger((220, 0, 0), (255, 255, 255), ratio) # change la couleur du lapin en fonction de son énergie
+        couleur_lapin = melanger((220, 0, 0), (255, 255, 255), ratio)
         pygame.draw.circle(fenetre, couleur_lapin, (pixel_x, pixel_y), 4)
+
+    for renard in renards:
+        pixel_x = renard.x * TAILLE_CASE + TAILLE_CASE // 2
+        pixel_y = renard.y * TAILLE_CASE + TAILLE_CASE // 2
+        ratio = min(renard.energie / 100, 1)
+        couleur_renard = melanger((120, 60, 0), (230, 120, 20), ratio)
+        pygame.draw.circle(fenetre, couleur_renard, (pixel_x, pixel_y), 5)
 
     pygame.display.flip()
     horloge.tick(30)
