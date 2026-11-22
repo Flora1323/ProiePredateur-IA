@@ -68,7 +68,9 @@ while en_cours:
                 meteo = Meteo.SECHERESSE
 
     eau, temperature = mettre_a_jour_meteo(eau, temperature, meteo)
-    nourriture = faire_repousser(nourriture, terrain, meteo.facteur_meteo, eau)
+    nourriture = faire_repousser(
+        nourriture, terrain, meteo.facteur_meteo, eau, temperature
+    )
 
     if pygame.mouse.get_pressed()[0]:
         mx, my = pygame.mouse.get_pos()
@@ -78,11 +80,11 @@ while en_cours:
             nourriture[case_y, case_x] = 0
 
     for lapin in lapins:
-        lapin.deplacer_au_hasard(LARGEUR, HAUTEUR)
+        lapin.deplacer_au_hasard(LARGEUR, HAUTEUR, temperature)
         lapin.manger(nourriture)
 
     for renard in renards:
-        renard.agir(lapins, LARGEUR, HAUTEUR)
+        renard.agir(lapins, LARGEUR, HAUTEUR, temperature)
         renard.manger(lapins)
 
     lapins = [lapin for lapin in lapins if lapin.est_vivant()]
@@ -111,6 +113,7 @@ while en_cours:
         couleur_renard = melanger((120, 60, 0), (230, 120, 20), ratio)
         pygame.draw.circle(fenetre, couleur_renard, (pixel_x, pixel_y), 5)
 
+    # Affichage des informations sur la météo
     meteo_texte = (
         f"{meteo.nom} - {temperature:.1f} C"
         f" - Eau moyenne : {np.mean(eau):.0f}%"

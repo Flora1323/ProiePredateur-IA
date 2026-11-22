@@ -1,5 +1,8 @@
 import random
 
+from environment import TEMPERATURE_OPTIMALE, calcul_penalite_energie_temperature
+
+
 def distance(x1, y1, x2, y2): #distance de Manhattan
     return abs(x1 - x2) + abs(y1 - y2)
 
@@ -16,12 +19,14 @@ class Lapin:
         self.y = y
         self.energie = 100
 
-    def deplacer_au_hasard(self, largeur, hauteur):
+    def deplacer_au_hasard(
+        self, largeur, hauteur, temperature=TEMPERATURE_OPTIMALE
+    ):
         self.x = self.x + random.choice([-1, 0, 1])
         self.y = self.y + random.choice([-1, 0, 1])
         self.x = max(0, min(self.x, largeur - 1))
         self.y = max(0, min(self.y, hauteur - 1))
-        self.energie -= 2
+        self.energie -= 2 + calcul_penalite_energie_temperature(temperature) # le lapin perd de l'énergie à chaque déplacement, plus une pénalité si la température est mauvaise
     
     def manger(self, nourriture):
         quantite = min(10, nourriture[self.y, self.x])   # il mange 10 maximum, ou ce qu'il reste
@@ -38,7 +43,7 @@ class Renard:
         self.energie = 100
         self.vision = 5
 
-    def agir(self, lapins, largeur, hauteur):
+    def agir(self, lapins, largeur, hauteur, temperature=TEMPERATURE_OPTIMALE):
         proches = [l for l in lapins if distance(self.x, self.y, l.x, l.y) <= self.vision]
 
         if proches:
@@ -51,7 +56,7 @@ class Renard:
 
         self.x = max(0, min(self.x, largeur - 1))
         self.y = max(0, min(self.y, hauteur - 1))
-        self.energie -= 1
+        self.energie -= 1 + calcul_penalite_energie_temperature(temperature) # idem pour le renard, il perd de l'énergie à chaque déplacement, plus une pénalité si la température est mauvaise
 
     def manger(self, lapins):
         for lapin in lapins:
