@@ -1,8 +1,10 @@
 import random
+import numpy as np
 import pygame
 from environment import (
     creer_terrain_lisse, ARIDE, PRAIRIE, FORET,
     creer_nourriture, faire_repousser, NOURRITURE_MAX,
+    Meteo, mettre_a_jour_meteo,
 )
 from agents import (
     Lapin, Renard
@@ -39,6 +41,10 @@ fenetre = pygame.display.set_mode((LARGEUR * TAILLE_CASE, HAUTEUR * TAILLE_CASE)
 
 terrain = creer_terrain_lisse(LARGEUR, HAUTEUR)
 nourriture = creer_nourriture(terrain)
+eau = np.full(terrain.shape, 100.0)
+temperature = 20.0
+meteo = Meteo.NORMALE
+police = pygame.font.Font(None, 20)
 
 lapins = []
 for _ in range(50): #changer le nombre de lapins
@@ -53,8 +59,18 @@ while en_cours:
     for evenement in pygame.event.get():
         if evenement.type == pygame.QUIT:
             en_cours = False
+        elif evenement.type == pygame.KEYDOWN:
+            if evenement.key == pygame.K_1:
+                meteo = Meteo.PLUIE
+            elif evenement.key == pygame.K_2:
+                meteo = Meteo.NORMALE
+            elif evenement.key == pygame.K_3:
+                meteo = Meteo.SECHERESSE
 
-    nourriture = faire_repousser(nourriture, terrain)
+    eau, temperature = mettre_a_jour_meteo(eau, temperature, meteo)
+    nourriture = faire_repousser(
+        nourriture, terrain, meteo.facteur_meteo, eau, temperature
+    )
 
     if pygame.mouse.get_pressed()[0]:
         mx, my = pygame.mouse.get_pos()
@@ -64,11 +80,11 @@ while en_cours:
             nourriture[case_y, case_x] = 0
 
     for lapin in lapins:
-        lapin.deplacer_au_hasard(LARGEUR, HAUTEUR)
+        lapin.deplacer_au_hasard(LARGEUR, HAUTEUR, temperature)
         lapin.manger(nourriture)
 
     for renard in renards:
-        renard.agir(lapins, LARGEUR, HAUTEUR)
+        renard.agir(lapins, LARGEUR, HAUTEUR, temperature)
         renard.manger(lapins)
 
     lapins = [lapin for lapin in lapins if lapin.est_vivant()]
@@ -96,6 +112,16 @@ while en_cours:
         ratio = min(renard.energie / 100, 1)
         couleur_renard = melanger((120, 60, 0), (230, 120, 20), ratio)
         pygame.draw.circle(fenetre, couleur_renard, (pixel_x, pixel_y), 5)
+
+    # Affichage des informations sur la météo
+    meteo_texte = (
+        f"{meteo.nom} - {temperature:.1f} C"
+        f" - Eau moyenne : {np.mean(eau):.0f}%"
+    )
+    aide_texte = "1: Pluie   2: Normale   3: Secheresse"
+    pygame.draw.rect(fenetre, (255, 255, 255), (4, 4, 265, 38))
+    fenetre.blit(police.render(meteo_texte, True, (0, 0, 0)), (8, 6))
+    fenetre.blit(police.render(aide_texte, True, (0, 0, 0)), (8, 23))
 
     pygame.display.flip()
     horloge.tick(30)
